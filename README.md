@@ -99,8 +99,43 @@ See terminal output or `test_results.txt` for the full table.
 
 ---
 
-## Limitations & Future Work
+## Interactive Mode
 
-- TextBlob uses a fixed lexicon; it struggles with sarcasm and domain-specific language.
-- Replacing TextBlob with a fine-tuned transformer (e.g. `cardiffnlp/twitter-roberta-base-sentiment`) would improve accuracy significantly.
-- The neutral threshold (`±0.05`) was tuned empirically and could be calibrated with labelled data.
+Test the model live by typing your own sentences:
+
+```bash
+python sentiment_analyzer.py --interactive
+```
+
+```
+Sentiment Analyzer — type 'quit' to exit
+
+Enter text: I love this project!
+  Label      : Positive
+  Polarity   : +0.5000
+  Subjectivity: 0.6000
+
+Enter text: quit
+```
+
+---
+
+## Limitations & Observed Failure Cases
+
+TextBlob uses a fixed word-level lexicon — it scores each token independently without understanding sentence context. During manual testing, three interesting failure cases were found:
+
+**1. Idioms ("better luck next time")**
+> *"Yesterday I gave an interview and he is very happy about my response and he said better luck next time."*
+> Predicted: **Positive (+0.50)** — Expected: Negative
+
+"better" and "happy" score positively, drowning out the rejection implied by "better luck next time." TextBlob has no awareness of idioms.
+
+**2. Emotional ownership ("he is happy" vs "I am happy")**
+> The model cannot distinguish *who* is feeling the sentiment. If the interviewer is happy but rejects you, the sentence still scores Positive.
+
+**3. Weak negation ("I am sorry")**
+> *"...he said I am sorry"* — Predicted: **Positive (+0.25)**
+
+"happy" in the same sentence outweighs "sorry," so the overall score stays positive despite the negative implication.
+
+**Potential fix:** Replacing TextBlob with a fine-tuned transformer like `cardiffnlp/twitter-roberta-base-sentiment` would handle idioms, negation, and contextual sentiment significantly better. The neutral threshold (`±0.05`) was tuned empirically and could also be calibrated with labelled data.
