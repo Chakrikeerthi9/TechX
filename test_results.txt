@@ -1,0 +1,60 @@
+======================================================================
+  Sentiment Analysis — Test Results
+  Model: TextBlob  |  Author: Keerthi Chakri
+======================================================================
+
+[✓] "The product exceeded all my expectations — absolutely fantastic!"
+     Expected: Positive    Predicted: Positive    Polarity: +0.5000
+
+[✓] "I had a wonderful time at the concert last night."
+     Expected: Positive    Predicted: Positive    Polarity: +0.5000
+
+[✓] "This is the best coffee I have ever tasted."
+     Expected: Positive    Predicted: Positive    Polarity: +1.0000
+
+[✓] "She passed her exams with flying colors. So proud of her!"
+     Expected: Positive    Predicted: Positive    Polarity: +1.0000
+
+[✓] "The customer service was rude and completely unhelpful."
+     Expected: Negative    Predicted: Negative    Polarity: -0.1000
+
+[✓] "I regret buying this laptop; it breaks down every week."
+     Expected: Negative    Predicted: Negative    Polarity: -0.1556
+
+[✓] "The movie was dull, predictable, and a waste of two hours."
+     Expected: Negative    Predicted: Negative    Polarity: -0.2306
+
+[✓] "Terrible experience — the food was cold and the staff ignored us."
+     Expected: Negative    Predicted: Negative    Polarity: -0.8000
+
+[✓] "The meeting is scheduled for 3 PM on Thursday."
+     Expected: Neutral     Predicted: Neutral     Polarity: +0.0000
+
+[✓] "Water boils at 100 degrees Celsius at sea level."
+     Expected: Neutral     Predicted: Neutral     Polarity: +0.0000
+
+[✓] "The package was delivered to the front desk."
+     Expected: Neutral     Predicted: Neutral     Polarity: +0.0000
+
+[✓] "The report contains twelve pages and three appendices."
+     Expected: Neutral     Predicted: Neutral     Polarity: +0.0000
+
+======================================================================
+  Results: 12/12 correct  |  Accuracy: 100.0%
+======================================================================
+
+📊 Analysis of Uncertain / Incorrect Predictions
+----------------------------------------------------------------------
+
+All 12 predictions were correct! Analyzing 2 borderline cases:
+
+Sentence : "The meeting is scheduled for 3 PM on Thursday."
+Expected : Neutral   |   Predicted: Neutral   |   Polarity: +0.0000
+Analysis : Polarity is extremely close to zero (the Neutral threshold).
+           TextBlob may miss implicit sentiment in factual phrasing.
+
+Sentence : "Water boils at 100 degrees Celsius at sea level."
+Expected : Neutral   |   Predicted: Neutral   |   Polarity: +0.0000
+Analysis : Polarity is extremely close to zero (the Neutral threshold).
+           TextBlob may miss implicit sentiment in factual phrasing.
+
