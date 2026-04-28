@@ -12,6 +12,8 @@ sentiment_project/
 ├── sentiment_analyzer.py   # Core logic + 12-sentence test suite
 ├── app.py                  # FastAPI REST endpoint
 ├── requirements.txt
+├── analysis.md             # Analysis of uncertain predictions
+├── screenshots/            # Test result screenshots
 └── README.md
 ```
 
@@ -25,7 +27,7 @@ git clone https://github.com/<your-username>/techx-sentiment.git
 cd techx-sentiment
 
 # 2. Create a virtual environment (recommended)
-python -m venv venv
+python3 -m venv venv
 source venv/bin/activate       # Windows: venv\Scripts\activate
 
 # 3. Install dependencies
@@ -43,7 +45,21 @@ python -m textblob.download_corpora
 python sentiment_analyzer.py
 ```
 
-Expected output — 12 test sentences with ✓/✗, polarity scores, accuracy summary, and analysis of borderline predictions.
+**Result: 12/12 correct | Accuracy: 100.0%**
+
+![Test Results](screenshots/test_results.png)
+
+---
+
+## Interactive Mode
+
+Test the model live by typing your own sentences:
+
+```bash
+python sentiment_analyzer.py --interactive
+```
+
+![Interactive Mode](screenshots/interactive_mode.png)
 
 ---
 
@@ -65,12 +81,14 @@ curl -X POST "http://127.0.0.1:8000/analyze" \
 
 ### Example Response
 
+![API Response](screenshots/api_response.png)
+
 ```json
 {
   "label": "Positive",
-  "polarity": 0.625,
-  "subjectivity": 0.6,
-  "input_text": "I absolutely love this product!"
+  "polarity": 0.5,
+  "subjectivity": 0.5,
+  "input_text": "Yesterday I gave an interview and he is very happy about my response and he said better luck next time"
 }
 ```
 
@@ -92,50 +110,17 @@ curl -X POST "http://127.0.0.1:8000/analyze" \
 
 ---
 
-## Test Results Summary
+## Analysis of Uncertain Predictions
 
-12 sentences tested — 4 Positive, 4 Negative, 4 Neutral.  
-See terminal output or `test_results.txt` for the full table.
+See [`analysis.md`](analysis.md) for a detailed breakdown of failure cases discovered during testing, including:
 
----
-
-## Interactive Mode
-
-Test the model live by typing your own sentences:
-
-```bash
-python sentiment_analyzer.py --interactive
-```
-
-```
-Sentiment Analyzer — type 'quit' to exit
-
-Enter text: I love this project!
-  Label      : Positive
-  Polarity   : +0.5000
-  Subjectivity: 0.6000
-
-Enter text: quit
-```
+- Mixed emotion sentences ("happy" + "regret" in same sentence)
+- Negation handling ("performance is not enough" → scored Neutral)
+- Typo sensitivity ("awfull" → scored 0.0 because not in lexicon)
+- Cause & effect blindness ("happy cuz I broke his mobile" → Positive)
 
 ---
 
-## Limitations & Observed Failure Cases
+## Limitations
 
-TextBlob uses a fixed word-level lexicon — it scores each token independently without understanding sentence context. During manual testing, three interesting failure cases were found:
-
-**1. Idioms ("better luck next time")**
-> *"Yesterday I gave an interview and he is very happy about my response and he said better luck next time."*
-> Predicted: **Positive (+0.50)** — Expected: Negative
-
-"better" and "happy" score positively, drowning out the rejection implied by "better luck next time." TextBlob has no awareness of idioms.
-
-**2. Emotional ownership ("he is happy" vs "I am happy")**
-> The model cannot distinguish *who* is feeling the sentiment. If the interviewer is happy but rejects you, the sentence still scores Positive.
-
-**3. Weak negation ("I am sorry")**
-> *"...he said I am sorry"* — Predicted: **Positive (+0.25)**
-
-"happy" in the same sentence outweighs "sorry," so the overall score stays positive despite the negative implication.
-
-**Potential fix:** Replacing TextBlob with a fine-tuned transformer like `cardiffnlp/twitter-roberta-base-sentiment` would handle idioms, negation, and contextual sentiment significantly better. The neutral threshold (`±0.05`) was tuned empirically and could also be calibrated with labelled data.
+TextBlob uses a fixed lexicon and cannot handle sarcasm, negation chains, mixed emotions, or domain-specific language. Replacing it with a fine-tuned transformer (e.g. `cardiffnlp/twitter-roberta-base-sentiment`) would improve accuracy for edge cases. The neutral threshold (`±0.05`) was tuned empirically and could be calibrated with labelled data.
